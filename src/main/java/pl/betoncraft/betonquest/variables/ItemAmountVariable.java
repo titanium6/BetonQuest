@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import pl.betoncraft.betonquest.BetonQuest;
 import pl.betoncraft.betonquest.Instruction;
+import pl.betoncraft.betonquest.VariableNumber;
 import pl.betoncraft.betonquest.api.Variable;
 import pl.betoncraft.betonquest.exceptions.InstructionParseException;
 import pl.betoncraft.betonquest.item.QuestItem;
@@ -38,15 +39,16 @@ public class ItemAmountVariable extends Variable {
 
     private QuestItem questItem;
     private Type type;
-    private int amount;
+    private VariableNumber amount;
 
     public ItemAmountVariable(final Instruction instruction) throws InstructionParseException {
         super(instruction);
         questItem = instruction.getQuestItem();
         if (instruction.next().toLowerCase().startsWith("left:")) {
             type = Type.LEFT;
+            final String string = instruction.getInstruction().substring(instruction.getInstruction().indexOf(":") + 1);
             try {
-                amount = Integer.parseInt(instruction.current().substring(5));
+                amount = new VariableNumber(instruction.getPackage().getName(), "%" + string + "%");
             } catch (NumberFormatException e) {
                 throw new InstructionParseException("Could not parse item amount", e);
             }
@@ -85,7 +87,7 @@ public class ItemAmountVariable extends Variable {
             case AMOUNT:
                 return Integer.toString(playersAmount);
             case LEFT:
-                return Integer.toString(amount - playersAmount);
+                return Integer.toString(amount.getInt(playerID) - playersAmount);
             default:
                 return "";
         }
