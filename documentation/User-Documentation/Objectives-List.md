@@ -160,25 +160,57 @@ To complete this objective the player simply needs to leave the server. Keep in 
 
 ## Password: `password`
 
-This objective requires the player to write a certain "password" in chat. The password consits of a prefix and the actual secret word:
+This objective requires the player to write a certain password in chat. All attempts of a player will be hidden from public chat.
+The password consists of a prefix followed by the actual secret word:
+```
 Solution: The Cake is a lie!     
-^prefix   ^secret word(s)       
-All attempts of a player will be hidden from public chat.
-The prefix can also be disabled:      
-The Cake is a lie!   <- This would be correct     
-The only downside of this is that all wrong attemtps will be shown in the global chat. 
+^prefix   ^secret word(s)
+```
 
 The objective's instruction string is defined as follows:
-The first argument is the password. All `_` characters are replaced with spaces. Next follows the prefix. If no custom prefix is set BetonQuest will look up a translatable version from the *messages.yml* config. To completely disable the prefix an empty prefix is required (password:bla prefix: events:...).
-You can also add the `ignoreCase` argument if you want a passwords capitalization ignored. This is especially important for regex matching.
+
+1. The first argument is the password, use underscore characters (`_`) instead of spaces.
+   The password is a [regular expression](https://medium.com/factory-mind/regex-tutorial-a-simple-cheatsheet-by-examples-649dc1c3f285).
+   They are a little complicated but worth the effort if you want more control over what exactly matches. 
+   Websites like [regex101.com](https://regex101.com/) help with that complexity though.
+   The offical [documentation](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/regex/Pattern.html#sum) for regular expressions
+   in Java might also help you.
+   If you don't want to get into them just write down the password but keep in mind that the players answer needs to be an exact match! 
+
+2. The prefix can be changed: The default (when no prefix is set) is the translated prefix from the *messages.yml* config in the user's language.             
+   Note that every custom prefix is suffixed with `:⠀`, so `prefix:Library_password` will require the user to enter `Library password: myfancypassword`.     
+   To disable the prefix use an empty `prefix:` declaration, e.g. `password myfancypassword prefix: events:success`.
+   Be aware of these side effects that come with disabling the prefix:
+    
+    * Nothing will be hidden on failure, so tries will be visible in chat and commands will get executed!
+    * If a command was used to enter the password, the command will not be canceled on success and thus still be executed!    
+    * This ensures that even if your password is `quest` you can still execute the `/quest` command. 
+   
+3. You can also add the `ignoreCase` argument if you want a password's capitalization to be ignored. This is especially important for regex matching.
+
+4. If you want to trigger one or more events when the player failed to guess the password you can use the argument `fail` with a list of events (comma separated).
+   With disabled prefix every command or chat message will trigger these events!
 
 !!! example
     ```YAML
-    password beton ignoreCase prefix:secret events:message,reward
+    password beton ignoreCase prefix:secret fail:failEvent1,failEvent2 events:message,reward
     ```
-    
-The correctness of the given password is validated using a popular system called 
-[regular expressions](https://medium.com/factory-mind/regex-tutorial-a-simple-cheatsheet-by-examples-649dc1c3f285). This is a little complicated and only worth the effort for experts. If you just want your players to input the exact string you defined as a password you do not need to do anything!
+
+## Pickup item: `pickup`
+
+To complete this objective you need to pickup the specified amount of items. 
+The first argument must be the internal name of an item defined in `items.yml`. This can also be a comma-separated list of multiple items.
+You can optionally add the `amount:` argument to specify how many of these items the player needs to pickup. 
+This amount is a total amount though, it does not count per each individual item. 
+
+You can also add the `notify` keyword to display how many items are left to pickup.
+
+!!! example
+    ```YAML
+    pickup emerald amount:3 events:reward notify
+    pickup emerald,diamond amount:6 events:reward notify
+    ```
+This objective has two variable properties: `amount` (shows how much the player already collected) and `left` (displays how much is left to pickup).
 
 ## Mob Kill: `mobkill`
 
@@ -242,7 +274,8 @@ Step objective contains one property, `location`. It's a string formatted like `
 
 ## Taming: `tame`
 
-To complete this objective player must tame some amount of mobs. valid mob types are: WOLF, OCELOT and HORSE First argument is type, next is amount.
+To complete this objective player must tame some amount of mobs. First argument is type, second is amount.
+The mob must be tameable for the objective to be valid, e.g. on 1.16.1: `CAT`, `DONKEY`, `HORSE`, `LLAMA`, `PARROT` or `WOLF`
 
 Taming has the same properties as mob kill objective.
 

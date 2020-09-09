@@ -248,7 +248,7 @@ public class Conversation implements Listener {
      */
     private void printOptions(final String[] options) {
         // i is for counting replies, like 1. something, 2. something else
-        int i = 0;
+        int optionsCount = 0;
         answers:
         for (final String option : options) {
             for (final ConditionID condition : data.getConditionIDs(option, OptionType.PLAYER)) {
@@ -256,9 +256,9 @@ public class Conversation implements Listener {
                     continue answers;
                 }
             }
-            i++;
+            optionsCount++;
             // print reply and put it to the hashmap
-            current.put(Integer.valueOf(i), option);
+            current.put(optionsCount, option);
             // replace variables with their values
             String text = data.getText(playerID, language, option, OptionType.PLAYER);
             for (final String variable : BetonQuest.resolveVariables(text)) {
@@ -373,9 +373,9 @@ public class Conversation implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onDamage(final EntityDamageByEntityEvent event) {
         // prevent damage to (or from) player while in conversation
-        if ((event.getEntity() instanceof Player && PlayerConverter.getID((Player) event.getEntity()).equals(playerID))
-                || (event.getDamager() instanceof Player
-                && PlayerConverter.getID((Player) event.getDamager()).equals(playerID))) {
+        if (event.getEntity() instanceof Player && PlayerConverter.getID((Player) event.getEntity()).equals(playerID)
+                || event.getDamager() instanceof Player
+                && PlayerConverter.getID((Player) event.getDamager()).equals(playerID)) {
             event.setCancelled(true);
         }
     }
@@ -471,6 +471,13 @@ public class Conversation implements Listener {
     }
 
     /**
+     * @return the interceptor of the conversation
+     */
+    public Interceptor getInterceptor() {
+        return interceptor;
+    }
+
+    /**
      * Starts the conversation, should be called asynchronously.
      *
      * @author Jakub Sapalski
@@ -506,8 +513,8 @@ public class Conversation implements Listener {
             // started, causing it to display "null" all the time
             try {
                 final String name = data.getConversationIO();
-                final Class<? extends ConversationIO> c = plugin.getConvIO(name);
-                conv.inOut = c.getConstructor(Conversation.class, String.class).newInstance(conv, playerID);
+                final Class<? extends ConversationIO> convIO = plugin.getConvIO(name);
+                conv.inOut = convIO.getConstructor(Conversation.class, String.class).newInstance(conv, playerID);
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                     | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 LogUtils.getLogger().log(Level.WARNING, "Error when loading conversation IO");
@@ -522,8 +529,8 @@ public class Conversation implements Listener {
             if (messagesDelaying) {
                 try {
                     final String name = data.getInterceptor();
-                    final Class<? extends Interceptor> c = plugin.getInterceptor(name);
-                    conv.interceptor = c.getConstructor(Conversation.class, String.class).newInstance(conv, playerID);
+                    final Class<? extends Interceptor> interceptor = plugin.getInterceptor(name);
+                    conv.interceptor = interceptor.getConstructor(Conversation.class, String.class).newInstance(conv, playerID);
                 } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                         | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                     LogUtils.getLogger().log(Level.WARNING, "Error when loading interceptor");
@@ -564,13 +571,13 @@ public class Conversation implements Listener {
 
             // print NPC's text
             printNPCText();
-            final ConversationOptionEvent e = new ConversationOptionEvent(player, conv, option, conv.option);
+            final ConversationOptionEvent optionEvent = new ConversationOptionEvent(player, conv, option, conv.option);
 
             new BukkitRunnable() {
 
                 @Override
                 public void run() {
-                    Bukkit.getPluginManager().callEvent(e);
+                    Bukkit.getPluginManager().callEvent(optionEvent);
                 }
             }.runTask(BetonQuest.getInstance());
 
@@ -592,6 +599,10 @@ public class Conversation implements Listener {
         }
 
         public void run() {
+            // fire events
+            for (final EventID event : data.getEventIDs(playerID, option, OptionType.NPC)) {
+                BetonQuest.event(playerID, event);
+            }
             new OptionPrinter(option).runTaskAsynchronously(BetonQuest.getInstance());
         }
     }
@@ -611,6 +622,10 @@ public class Conversation implements Listener {
         }
 
         public void run() {
+            // fire events
+            for (final EventID event : data.getEventIDs(playerID, option, OptionType.PLAYER)) {
+                BetonQuest.event(playerID, event);
+            }
             new ResponsePrinter(option).runTaskAsynchronously(BetonQuest.getInstance());
         }
     }
@@ -637,14 +652,9 @@ public class Conversation implements Listener {
             final ConversationOptionEvent event = new ConversationOptionEvent(player, conv, option, conv.option);
 
             new BukkitRunnable() {
-
                 @Override
                 public void run() {
                     Bukkit.getServer().getPluginManager().callEvent(event);
-                    // fire events
-                    for (final EventID event : data.getEventIDs(playerID, option, OptionType.PLAYER)) {
-                        BetonQuest.event(playerID, event);
-                    }
                 }
             }.runTask(BetonQuest.getInstance());
         }
@@ -665,11 +675,6 @@ public class Conversation implements Listener {
         }
 
         public void run() {
-            // fire events
-            for (final EventID event : data.getEventIDs(playerID, option, OptionType.NPC)) {
-                BetonQuest.event(playerID, event);
-            }
-
             // print options
             printOptions(data.getPointers(playerID, option, OptionType.NPC));
         }

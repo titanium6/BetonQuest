@@ -47,24 +47,24 @@ public class DelEffectEvent extends QuestEvent {
             effects = Collections.emptyList();
         } else {
             any = false;
-            effects = instruction.getList(next, (type -> {
+            effects = instruction.getList(next, type -> {
                 final PotionEffectType effect = PotionEffectType.getByName(type.toUpperCase());
                 if (effect == null) {
                     throw new InstructionParseException("Effect type '" + type + "' does not exist");
                 } else {
                     return effect;
                 }
-            }));
+            });
         }
     }
 
     @Override
     protected Void execute(final String playerID) throws QuestRuntimeException {
-        final Player p = PlayerConverter.getPlayer(playerID);
+        final Player player = PlayerConverter.getPlayer(playerID);
         if (any) {
-            p.getActivePotionEffects().forEach(effect -> p.removePotionEffect(effect.getType()));
+            player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
         } else {
-            effects.forEach(p::removePotionEffect);
+            effects.forEach(player::removePotionEffect);
         }
         return null;
     }

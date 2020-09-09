@@ -92,7 +92,7 @@ public abstract class QuestEvent extends ForceSyncHandler<Void> {
         final int length = tempConditions1.length + tempConditions2.length;
         conditions = new ConditionID[length];
         for (int i = 0; i < length; i++) {
-            final String condition = (i >= tempConditions1.length) ? tempConditions2[i - tempConditions1.length] : tempConditions1[i];
+            final String condition = i >= tempConditions1.length ? tempConditions2[i - tempConditions1.length] : tempConditions1[i];
             try {
                 conditions[i] = new ConditionID(instruction.getPackage(), condition);
             } catch (ObjectNotFoundException e) {
@@ -129,15 +129,15 @@ public abstract class QuestEvent extends ForceSyncHandler<Void> {
                 LogUtils.getLogger().log(Level.FINE, "Static event will be fired once for every player:");
                 players:
                 for (final Player player : Bukkit.getOnlinePlayers()) {
-                    final String id = PlayerConverter.getID(player);
+                    final String onlinePlayerID = PlayerConverter.getID(player);
                     for (final ConditionID condition : conditions) {
-                        if (!BetonQuest.condition(id, condition)) {
+                        if (!BetonQuest.condition(onlinePlayerID, condition)) {
                             LogUtils.getLogger().log(Level.FINE, "  Event conditions were not met for player " + player.getName());
                             continue players;
                         }
                     }
                     LogUtils.getLogger().log(Level.FINE, "  Firing this static event for player " + player.getName());
-                    handle(id);
+                    handle(onlinePlayerID);
                 }
             }
         } else if (PlayerConverter.getPlayer(playerID) == null) {

@@ -55,7 +55,7 @@ public class InventoryConvIO implements Listener, ConversationIO {
 
     protected String response = null;
     protected HashMap<Integer, String> options = new HashMap<>();
-    protected int i = 0;
+    protected int playerOptionsCount = 0;
     protected String npcName;
     protected String npcNameColor;
     protected String npcTextColor;
@@ -129,8 +129,8 @@ public class InventoryConvIO implements Listener, ConversationIO {
 
     @Override
     public void addPlayerOption(final String option) {
-        i++;
-        options.put(i, Utils.replaceReset(option, optionColor));
+        playerOptionsCount++;
+        options.put(playerOptionsCount, Utils.replaceReset(option, optionColor));
     }
 
     @SuppressWarnings("deprecation")
@@ -217,15 +217,15 @@ public class InventoryConvIO implements Listener, ConversationIO {
                     }
                     materialName = materialName.substring(0, colonIndex);
                 }
-                Material m = Material.matchMaterial(materialName);
-                if (m == null) {
-                    m = Material.matchMaterial(materialName, true);
+                Material mat = Material.matchMaterial(materialName);
+                if (mat == null) {
+                    mat = Material.matchMaterial(materialName, true);
                 }
                 option = option.replace("{" + fullMaterial + "}", "");
-                if (m == null) {
+                if (mat == null) {
                     material = Material.ENDER_PEARL;
                 } else {
-                    material = m;
+                    material = mat;
                 }
             }
             // remove custom material prefix from the option
@@ -304,9 +304,9 @@ public class InventoryConvIO implements Listener, ConversationIO {
             final int row = (int) Math.floor(slot / 9);
             // raw column number minus two columns (npc head an empty space)
             // and plus one (because options are indexed starting with 1)
-            final int col = (slot % 9) - 2 + 1;
+            final int col = slot % 9 - 2 + 1;
             // each row can have 7 options, add column number to get an option
-            final int choosen = (row * 7) + col;
+            final int choosen = row * 7 + col;
             final String message = options.get(choosen);
             if (message != null) {
                 processingLastClick = true;
@@ -353,7 +353,7 @@ public class InventoryConvIO implements Listener, ConversationIO {
     public void clear() {
         response = null;
         options.clear();
-        i = 0;
+        playerOptionsCount = 0;
     }
 
     @Override

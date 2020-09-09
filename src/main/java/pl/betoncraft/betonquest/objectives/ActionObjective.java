@@ -21,7 +21,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -38,7 +37,6 @@ import pl.betoncraft.betonquest.utils.LocationData;
 import pl.betoncraft.betonquest.utils.LogUtils;
 import pl.betoncraft.betonquest.utils.PlayerConverter;
 
-import javax.management.monitor.Monitor;
 import java.util.logging.Level;
 
 /**
@@ -65,8 +63,8 @@ public class ActionObjective extends Objective implements Listener {
             selector = instruction.getBlockSelector(instruction.current());
         }
         loc = instruction.getLocation(instruction.getOptional("loc"));
-        final String r = instruction.getOptional("range");
-        range = instruction.getVarNum(r == null ? "1" : r);
+        final String stringRange = instruction.getOptional("range");
+        range = instruction.getVarNum(stringRange == null ? "1" : stringRange);
         cancel = instruction.hasArgument("cancel");
 
         if (selector != null && !selector.isValid()) {
@@ -132,16 +130,16 @@ public class ActionObjective extends Objective implements Listener {
                     break;
             }
             try {
-                if (((actionEnum == null && (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-                        || event.getAction().equals(Action.LEFT_CLICK_BLOCK))) || event.getAction().equals(actionEnum))
-                        && (event.getClickedBlock() != null && (((selector.match(Material.FIRE) || selector.match(Material.LAVA) || selector.match(Material.WATER))
-                        && selector.match(event.getClickedBlock().getRelative(event.getBlockFace())))
-                        || selector.match(event.getClickedBlock())))) {
+                if ((actionEnum == null && (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+                        || event.getAction().equals(Action.LEFT_CLICK_BLOCK)) || event.getAction().equals(actionEnum))
+                        && event.getClickedBlock() != null && ((selector.match(Material.FIRE) || selector.match(Material.LAVA) || selector.match(Material.WATER))
+                        && selector.match(event.getClickedBlock().getRelative(event.getBlockFace()))
+                        || selector.match(event.getClickedBlock()))) {
                     if (loc != null) {
                         final Location location = loc.getLocation(playerID);
-                        final double r = range.getDouble(playerID);
+                        final double pRange = range.getDouble(playerID);
                         if (!event.getClickedBlock().getWorld().equals(location.getWorld())
-                                || event.getClickedBlock().getLocation().distance(location) > r) {
+                                || event.getClickedBlock().getLocation().distance(location) > pRange) {
                             return;
                         }
                     }

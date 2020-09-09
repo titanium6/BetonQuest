@@ -34,20 +34,16 @@ import pl.betoncraft.betonquest.config.Zipper;
 import pl.betoncraft.betonquest.database.Connector;
 import pl.betoncraft.betonquest.database.Connector.QueryType;
 import pl.betoncraft.betonquest.database.Connector.UpdateType;
+import pl.betoncraft.betonquest.database.Database;
 import pl.betoncraft.betonquest.exceptions.InstructionParseException;
 import pl.betoncraft.betonquest.id.ConditionID;
-import pl.betoncraft.betonquest.database.Database;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,7 +101,7 @@ public class Utils {
             final FileConfiguration config = accessor.getConfig();
             // prepare the database and map
             final HashMap<String, ResultSet> map = new HashMap<>();
-            final String[] tables = new String[]{"objectives", "tags", "points", "journals", "player"};
+            final String[] tables = {"objectives", "tags", "points", "journals", "player"};
             // open database connection
             final Connector database = new Connector();
             // load resultsets into the map
@@ -254,11 +250,11 @@ public class Utils {
             if (!backupFolder.isDirectory()) {
                 backupFolder.mkdirs();
             }
-            int i = 0;
-            while (new File(backupFolder, "old-database-" + i + ".yml").exists()) {
-                i++;
+            int backupNumber = 0;
+            while (new File(backupFolder, "old-database-" + backupNumber + ".yml").exists()) {
+                backupNumber++;
             }
-            filename = "old-database-" + i + ".yml";
+            filename = "old-database-" + backupNumber + ".yml";
             LogUtils.getLogger().log(Level.INFO, "Backing up old database!");
             if (!(isOldDatabaseBackedUP = backupDatabase(new File(backupFolder, filename)))) {
                 LogUtils.getLogger().log(Level.WARNING, "There was an error during old database backup process. This means that"
@@ -450,11 +446,11 @@ public class Utils {
      */
     public static List<String> multiLineColorCodes(final List<String> pages, final String def) {
         String lastCodes = "";
-        final ListIterator<String> i = pages.listIterator();
+        final ListIterator<String> iterator = pages.listIterator();
         final List<String> result = new ArrayList<>();
 
-        while (i.hasNext()) {
-            final String line = i.next();
+        while (iterator.hasNext()) {
+            final String line = iterator.next();
             result.add(lastCodes + replaceReset(line, def));
             lastCodes = LocalChatPaginator.getLastColors(line);
         }
@@ -504,12 +500,12 @@ public class Utils {
      */
     public static String[] split(final String string) {
         final List<String> list = new ArrayList<>();
-        final Matcher m = Pattern.compile("(?:(?:(\\S*)(?:\")([^\"]*?)(?:\"))|(\\S+))\\s*").matcher(string);
-        while (m.find()) {
-            if (m.group(3) == null) {
-                list.add(m.group(1) + m.group(2));
+        final Matcher matcher = Pattern.compile("(?:(?:(\\S*)(?:\")([^\"]*?)(?:\"))|(\\S+))\\s*").matcher(string);
+        while (matcher.find()) {
+            if (matcher.group(3) == null) {
+                list.add(matcher.group(1) + matcher.group(2));
             } else {
-                list.add(m.group(3));
+                list.add(matcher.group(3));
             }
         }
         return list.toArray(new String[0]);

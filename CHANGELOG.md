@@ -21,13 +21,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Condition 'wand' can now have an option '
 - Implementing 1.15 support for Events and Conditions
 - New Chat event, that write chat messages for a player
+- Added 'pickup' objective
 - Added stopnpc event, that will stop the movenpc event
 - Added teleportnpc event, that will stop the movenpc event and teleport the npc to a given location
 - Added option check_interval for holograms in custom.yml andd added GlobalVariable support
 - Added deletepoint event to delete player points
 - Added mythicmobdistance condition that will check if a specific MythicMobs entity is near the player
-- added level argument to 'experience' objective and condition
-- added prefix argument in password objective
+- Added level argument to 'experience' objective and condition
+- Added prefix argument in password objective
+- Added level argument to 'experience' objective and condition
+- Added prefix argument in password objective
+- Added fail argument in password objective
+- Added notify option to point event
+- Added an interceptor that does not intercept: 'none'
 ### Changed
 - devbuilds always show notifications for new devbuilds, even when the user is not on a _DEV strategy
 - Items for HolographicDisplays are now defines in items.yml
@@ -39,6 +45,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed 'xp' event to 'experience'
 - new config option mysql.enabled
     - if you already have an installation, you can add this manually to get rid of the mysql warning during startup
+- events in conversation options are now executed before npc or player responses are printed
+- message event now ignores chat interceptors during conversation
+- tame objective now works with all tamable mobs, including possible future ones
+- improved chestput waring for locations without a chest
+- reworked location variable: %location.(xyz|x|y|z|yaw|pitch|world|ulfShort|ulfLong)(.NUMBER)%
 ### Deprecated
 ### Removed
 - Removed Deprecated Exceptions
@@ -47,7 +58,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed BoutifulAPI support
 - Removed the CLAY NPC
 - removed legacy material support
+- removed BetonLangAPI support
 ### Fixes
+- event priority for block objective
 - linebreaks in strings
 - notify:1 for block objective did not work
 - asynchronous database access for objectives
@@ -65,9 +78,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fixed outdated Brewery dependency
 - fixed message dublication when using the packet interceptor
 - fixed Journal interaction with Lectern
+- fixed QuestItems ignoring durabilty
 - fixed QuestItem interaction with Lectern, Campfire and Composter
 - fixed journal update after magic inventory is closed
 - fixed lever event not toggling the lever
+- fixed ConcurrentModificationException in PlayerData
+- fixed issue where the PacketInterceptor prints the message tag in the chat
 ### Security
 - fixed issue, where objectives that count things are out of sync with the database. This has also affected BungeeCord support
 

@@ -1,28 +1,20 @@
 # Compatibility
-In total 27 plugins have dedicated support for BetonQuest.
+In total 28 plugins have dedicated support for BetonQuest.
 
-BetonQuest can hook into other plugins to extend its functionality. Currently, 24 plugins are supported:  
-BetonLangAPI, Brewery, Citizens, Denizen, EffectLib, Heroes, HolographicDisplays, JobsReborn, Magic,
+BetonQuest can hook into other plugins to extend its functionality. Currently, 23 plugins are supported:  
+Brewery, Citizens, Denizen, EffectLib, Heroes, HolographicDisplays, JobsReborn, Magic,
 mcMMO, MMOLib, MMOCore, MMOItems, MythicMobs, PlaceholderAPI, PlayerPoints, ProtocolLib, Quests,
 Shopkeepers, SkillAPI, Skript, Vault, WorldEdit and WorldGuard.
 
 Some plugins also hook into BetonQuest and provide support by themselves:  
 [nuNPCDestinations](https://www.spigotmc.org/resources/npcdestinations-create-living-npcs.13863/),
 [RPGMenu](https://www.spigotmc.org/resources/rpgmenu.55170/),
+[CalebCompass](https://www.spigotmc.org/resources/caleb-compass.82674/)
+
+There are also plugins that hook into BetonQuest that require a clientside mod:
+[BetonQuestGUI](https://github.com/giovanni-bozzano/betonquest-gui-plugin),
 [NGVexJournal](https://www.spigotmc.org/resources/ngvexjournal-multi-function-betonquest-journal-gui-1-7-10-1-13.76938/)
 
-## [BetonLangAPI](https://github.com/Co0sh/BetonLangAPI/releases)
-
-### Events
-
-#### Language: `language`
-
-This event changes player's language to the specified one. There is only one argument, the language name.
-
-!!! example
-    ```YAML
-    language es
-    ```
 
 ## [Brewery](https://www.spigotmc.org/resources/brewery.3082/)
 
@@ -606,7 +598,7 @@ hide_npcs:
 
 ### Conversation IO: `menu`
 
-A conversation IO that makes use of a chat menu system. A video of it in action can be seen [here](https://www.youtube.com/channel/UCyF806Xfzr4B18dsZ4TEI9w).
+ProtocolLib also enables a conversation IO that makes use of a chat menu system. A video of it in action can be seen [here](../media/content/Home/MenuConvIO.mp4).
 
 Customize how it looks by adding the following lines to custom.yml:
 

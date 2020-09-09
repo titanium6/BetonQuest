@@ -92,16 +92,25 @@
           <version>3.37</version>
           <scope>provided</scope>
         </dependency>
+      </dependencies>
+    </profile>
+
+    <profile>
+      <id>from-heroes</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>heroes-repo</id>
+          <url>http://nexus.hc.to/content/repositories/pub_releases/</url>
+        </repository>
+      </repositories>
+      <dependencies>
         <dependency>
           <groupId>com.herocraftonline.heroes</groupId>
           <artifactId>Heroes</artifactId>
           <version>1.5.5.7</version>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>pl.betoncraft</groupId>
-          <artifactId>BetonLangAPI</artifactId>
-          <version>1.1.1</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>
@@ -129,16 +138,19 @@
           <groupId>net.Indyuce</groupId>
           <artifactId>MMOLib</artifactId>
           <version>1.2.3</version>
+          <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>net.Indyuce</groupId>
           <artifactId>MMOCore</artifactId>
           <version>1.4.1</version>
+          <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>net.Indyuce</groupId>
           <artifactId>MMOItems</artifactId>
           <version>5.5.4</version>
+          <scope>provided</scope>
         </dependency>
       </dependencies>
     </profile>
@@ -224,27 +236,6 @@
           <groupId>com.gmail.nossr50.mcMMO</groupId>
           <artifactId>mcMMO</artifactId>
           <version>2.1.128</version>
-          <scope>provided</scope>
-        </dependency>
-      </dependencies>
-    </profile>
-
-    <profile>
-      <id>from-shopkeepers</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <repositories>
-        <repository>
-          <id>shopkeepers-repo</id>
-          <url>https://nexus.lichtspiele.org/repository/maven-public/</url>
-        </repository>
-      </repositories>
-      <dependencies>
-        <dependency>
-          <groupId>com.nisovin.shopkeepers</groupId>
-          <artifactId>ShopkeepersAPI</artifactId>
-          <version>2.10.0</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>
@@ -340,13 +331,19 @@
         <dependency>
           <groupId>com.github.PikaMug</groupId>
           <artifactId>Quests</artifactId>
-          <version>0265e09</version>
+          <version>39a1c3edc7</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>com.github.Zrips</groupId>
           <artifactId>Jobs</artifactId>
-          <version>2873a7f</version>
+          <version>d08dbedb56</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.github.Shopkeepers</groupId>
+          <artifactId>Shopkeepers</artifactId>
+          <version>d05e051348</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>

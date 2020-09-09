@@ -17,19 +17,6 @@
  */
 package pl.betoncraft.betonquest.commands;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.StringJoiner;
-import java.util.TreeMap;
-import java.util.logging.Level;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -43,7 +30,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-
 import pl.betoncraft.betonquest.*;
 import pl.betoncraft.betonquest.api.Objective;
 import pl.betoncraft.betonquest.compatibility.Compatibility;
@@ -60,15 +46,14 @@ import pl.betoncraft.betonquest.exceptions.ObjectNotFoundException;
 import pl.betoncraft.betonquest.exceptions.QuestRuntimeException;
 import pl.betoncraft.betonquest.id.ConditionID;
 import pl.betoncraft.betonquest.id.EventID;
-import pl.betoncraft.betonquest.id.ItemID;
 import pl.betoncraft.betonquest.id.ObjectiveID;
 import pl.betoncraft.betonquest.item.QuestItem;
-import pl.betoncraft.betonquest.utils.ComponentBuilder;
-import pl.betoncraft.betonquest.utils.LocationData;
-import pl.betoncraft.betonquest.utils.LogUtils;
-import pl.betoncraft.betonquest.utils.PlayerConverter;
-import pl.betoncraft.betonquest.utils.Updater;
-import pl.betoncraft.betonquest.utils.Utils;
+import pl.betoncraft.betonquest.utils.*;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * Main admin command for quest editing.
@@ -569,7 +554,7 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
                     sendMessage(sender, "specify_path");
                     return;
                 }
-                final boolean set = Config.setString(path, (args[3].equalsIgnoreCase("null")) ? null : strBldr.toString().trim());
+                final boolean set = Config.setString(path, args[3].equalsIgnoreCase("null") ? null : strBldr.toString().trim());
                 if (set) {
                     LogUtils.getLogger().log(Level.FINE, "Displaying variable at path " + path);
                     final String message1 = Config.getString(path);
@@ -603,7 +588,7 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
                 if (oldString == null) {
                     oldString = "";
                 }
-                final boolean set2 = Config.setString(path, oldString + ((space) ? " " : "") + finalString);
+                final boolean set2 = Config.setString(path, oldString + (space ? " " : "") + finalString);
                 if (set2) {
                     LogUtils.getLogger().log(Level.FINE, "Displaying variable at path " + path);
                     final String message2 = Config.getString(path);
@@ -671,7 +656,7 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
             sendMessage(sender, "specify_pointer");
             return;
         }
-        final String pointerName = (args[3].contains(".")) ? args[3] : defaultPack + "." + args[3];
+        final String pointerName = args[3].contains(".") ? args[3] : defaultPack + "." + args[3];
         // if there are arguments, handle them
         switch (args[2].toLowerCase()) {
             case "add":
@@ -987,7 +972,7 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
      */
     private void handleEvents(final CommandSender sender, final String[] args) {
         // the player has to be specified every time
-        if (args.length < 2 || (Bukkit.getPlayer(args[1]) == null && !args[1].equals("-"))) {
+        if (args.length < 2 || Bukkit.getPlayer(args[1]) == null && !args[1].equals("-")) {
             LogUtils.getLogger().log(Level.FINE, "Player's name is missing or he's offline");
             sendMessage(sender, "specify_player");
             return;
@@ -1009,7 +994,7 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
             return;
         }
         // fire the event
-        final String playerID = (args[1].equals("-")) ? null : PlayerConverter.getID(args[1]);
+        final String playerID = args[1].equals("-") ? null : PlayerConverter.getID(args[1]);
         BetonQuest.event(playerID, eventID);
         sendMessage(sender, "player_event", new String[]{
                 eventID.generateInstruction().getInstruction()
@@ -1039,7 +1024,7 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
      */
     private void handleConditions(final CommandSender sender, final String[] args) {
         // the player has to be specified every time
-        if (args.length < 2 || (Bukkit.getPlayer(args[1]) == null && !args[1].equals("-"))) {
+        if (args.length < 2 || Bukkit.getPlayer(args[1]) == null && !args[1].equals("-")) {
             LogUtils.getLogger().log(Level.FINE, "Player's name is missing or he's offline");
             sendMessage(sender, "specify_player");
             return;
@@ -1062,7 +1047,7 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
             return;
         }
         // display message about condition
-        final String playerID = (args[1].equals("-")) ? null : PlayerConverter.getID(args[1]);
+        final String playerID = args[1].equals("-") ? null : PlayerConverter.getID(args[1]);
         sendMessage(sender, "player_condition", new String[]{
                 (conditionID.inverted() ? "! " : "") + conditionID.generateInstruction().getInstruction(),
                 Boolean.toString(BetonQuest.condition(playerID, conditionID))
@@ -1391,7 +1376,7 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
         if (!(sender instanceof Player)) {
             return;
         }
-        final Player player = ((Player) sender);
+        final Player player = (Player) sender;
         if (args.length != 3) {
             player.sendMessage("§4ERROR");
             return;
@@ -1580,18 +1565,18 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
                 updateType = UpdateType.RENAME_ALL_ENTRIES;
                 for (final Player player : Bukkit.getOnlinePlayers()) {
                     final Journal journal = BetonQuest.getInstance().getPlayerData(PlayerConverter.getID(player)).getJournal();
-                    Pointer p = null;
+                    Pointer journalPointer = null;
                     for (final Pointer pointer : journal.getPointers()) {
                         if (pointer.getPointer().equals(name)) {
-                            p = pointer;
+                            journalPointer = pointer;
                         }
                     }
                     // skip the player if he does not have this entry
-                    if (p == null) {
+                    if (journalPointer == null) {
                         continue;
                     }
                     journal.removePointer(name);
-                    journal.addPointer(new Pointer(rename, p.getTimestamp()));
+                    journal.addPointer(new Pointer(rename, journalPointer.getTimestamp()));
                     journal.update();
                 }
                 break;
@@ -1796,7 +1781,7 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
         final String spigotVersion = Bukkit.getServer().getVersion();
 
         // get internal messages
-        final String lang = (sender instanceof Player)
+        final String lang = sender instanceof Player
                 ? BetonQuest.getInstance().getPlayerData(PlayerConverter.getID((Player) sender)).getLanguage()
                 : Config.getLanguage();
         final String clickToDownload = "§b" + Config.getMessage(lang, "click_to_download");
@@ -1814,9 +1799,9 @@ public class QuestCommand implements CommandExecutor, SimpleTabCompleter {
         // get hooked Plugins
         final TreeMap<String, String> hooked = new TreeMap<>();
         for (final String plugin : Compatibility.getHooked()) {
-            final Plugin pl = Bukkit.getPluginManager().getPlugin(plugin);
-            if (pl != null) {
-                hooked.put(plugin, pl.getDescription().getVersion());
+            final Plugin plug = Bukkit.getPluginManager().getPlugin(plugin);
+            if (plug != null) {
+                hooked.put(plugin, plug.getDescription().getVersion());
             }
         }
         final StringJoiner hookedRaw = new StringJoiner(", ");
